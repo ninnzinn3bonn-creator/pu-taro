@@ -1,0 +1,38 @@
+[
+  {
+    "id": "approval-cleaning-0624",
+    "taskId": "task-cleaning-flow",
+    "runId": "run-1003",
+    "businessAreaId": "cleaning",
+    "type": "外部スタッフ依頼",
+    "title": "6月24日の清掃依頼文",
+    "content": "清掃担当者、入室可能時刻、リネン数、備品補充項目を確認してください。",
+    "riskLevel": "medium",
+    "status": "pending",
+    "requestedAt": "11分前"
+  },
+  {
+    "id": "approval-price-weekend",
+    "taskId": "task-price-research",
+    "runId": "run-1004",
+    "businessAreaId": "pricing",
+    "type": "価格変更案",
+    "title": "7月第1週末を18,000円へ変更",
+    "content": "イベント需要と残室数を根拠にした変更案。取得エラー復旧後に再計算が必要です。",
+    "riskLevel": "high",
+    "status": "pending",
+    "requestedAt": "18分前"
+  },
+  {
+    "id": "approval-rag-checkin",
+    "taskId": "task-rag-maintenance",
+    "runId": "run-1002",
+    "businessAreaId": "guest-support",
+    "type": "RAG更新案",
+    "title": "チェックイン説明の追記",
+    "content": "駐車場から玄関までの経路と、夜間の入室方法をFAQへ追記します。",
+    "riskLevel": "low",
+    "status": "approved",
+    "requestedAt": "1時間前"
+  }
+]

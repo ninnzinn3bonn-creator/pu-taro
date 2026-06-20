@@ -1,0 +1,4 @@
+interface:
+  display_name: "AX Report"
+  short_description: "Report AX progress, blockers, approvals, and next work"
+  default_prompt: "Use $ax-report to generate a concise AX progress report."

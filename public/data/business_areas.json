@@ -1,0 +1,122 @@
+[
+  {
+    "id": "guest-support",
+    "name": "ゲスト問い合わせ対応",
+    "shortName": "FRONT DESK",
+    "description": "問い合わせ取得から返信案生成、人間承認、送信準備までを管理する主力ライン。",
+    "icon": "✦",
+    "axLevel": 7,
+    "progress": 78,
+    "status": "active",
+    "color": "#43e8b8",
+    "accent": "#163f3b",
+    "position": { "x": 0, "y": 0 },
+    "nextAction": "Bookingメッセージ取込を接続",
+    "files": ["facility_rules.md", "guest_reply_examples.md", "nearby_info.md", "faq.md"],
+    "prompts": ["guest-reply-system.md", "multilingual-check.md"],
+    "prohibitedActions": ["勝手に送信しない", "返金や料金を断定しない", "未確認情報を案内しない"],
+    "line": [
+      { "id": "guest-in", "label": "問い合わせ取得", "kind": "input", "status": "completed" },
+      { "id": "lang", "label": "言語判定", "kind": "machine", "status": "completed" },
+      { "id": "rag", "label": "RAG参照", "kind": "machine", "status": "running" },
+      { "id": "draft", "label": "返信案生成", "kind": "machine", "status": "running" },
+      { "id": "guest-approval", "label": "人間承認", "kind": "approval", "status": "waiting" },
+      { "id": "send-ready", "label": "送信準備", "kind": "output", "status": "ready" }
+    ]
+  },
+  {
+    "id": "cleaning",
+    "name": "清掃オペレーション",
+    "shortName": "CLEANING STATION",
+    "description": "予約確定から清掃依頼、完了報告、不足備品の抽出までをつなぐライン。",
+    "icon": "◆",
+    "axLevel": 5,
+    "progress": 62,
+    "status": "attention",
+    "color": "#67d8ff",
+    "accent": "#17364a",
+    "position": { "x": 1, "y": 0 },
+    "nextAction": "清掃依頼文の承認フローを固定",
+    "files": ["cleaning_calendar.csv", "cleaning_checklist.md", "staff_contacts.md"],
+    "prompts": ["cleaning-request.md", "damage-extractor.md"],
+    "prohibitedActions": ["担当者確定前に正式依頼しない", "鍵情報を平文ログに残さない"],
+    "line": [
+      { "id": "booking", "label": "予約確定", "kind": "input", "status": "completed" },
+      { "id": "clean-date", "label": "清掃日判定", "kind": "machine", "status": "completed" },
+      { "id": "clean-draft", "label": "依頼文作成", "kind": "machine", "status": "running" },
+      { "id": "clean-approval", "label": "依頼承認", "kind": "approval", "status": "waiting" },
+      { "id": "clean-report", "label": "完了報告", "kind": "output", "status": "ready" }
+    ]
+  },
+  {
+    "id": "pricing",
+    "name": "価格調整研究所",
+    "shortName": "PRICING LAB",
+    "description": "予約状況、季節、イベント、前年実績から価格変更案を生成する分析ライン。",
+    "icon": "▲",
+    "axLevel": 4,
+    "progress": 49,
+    "status": "blocked",
+    "color": "#b69cff",
+    "accent": "#30274d",
+    "position": { "x": 0, "y": 1 },
+    "nextAction": "周辺価格データ取得の失敗を修正",
+    "files": ["pricing_rules.md", "occupancy.csv", "events_calendar.md", "last_year_sales.csv"],
+    "prompts": ["price-analysis.md", "price-change-review.md"],
+    "prohibitedActions": ["承認なしで販売価格を変更しない", "キャンセル条件を変更しない"],
+    "line": [
+      { "id": "occupancy", "label": "予約状況", "kind": "input", "status": "completed" },
+      { "id": "events", "label": "季節・イベント", "kind": "machine", "status": "completed" },
+      { "id": "market", "label": "周辺価格", "kind": "machine", "status": "blocked" },
+      { "id": "price-plan", "label": "変更案生成", "kind": "machine", "status": "waiting" },
+      { "id": "price-approval", "label": "価格承認", "kind": "approval", "status": "waiting" }
+    ]
+  },
+  {
+    "id": "accounting",
+    "name": "月次会計室",
+    "shortName": "ACCOUNTING ROOM",
+    "description": "売上、手数料、清掃費、経費を整理し、月次レポートと改善候補を出力する。",
+    "icon": "●",
+    "axLevel": 6,
+    "progress": 71,
+    "status": "stable",
+    "color": "#f7c85c",
+    "accent": "#493b1b",
+    "position": { "x": 1, "y": 1 },
+    "nextAction": "委託料計算の照合テスト",
+    "files": ["monthly_sales.csv", "expenses.xlsx", "commission_rules.md"],
+    "prompts": ["monthly-close.md", "management-report.md"],
+    "prohibitedActions": ["元データを上書きしない", "未照合値を確定値として報告しない"],
+    "line": [
+      { "id": "sales", "label": "売上取得", "kind": "input", "status": "completed" },
+      { "id": "expense", "label": "経費整理", "kind": "machine", "status": "completed" },
+      { "id": "commission", "label": "委託料計算", "kind": "machine", "status": "running" },
+      { "id": "report", "label": "レポート生成", "kind": "output", "status": "running" },
+      { "id": "review", "label": "数値確認", "kind": "approval", "status": "waiting" }
+    ]
+  },
+  {
+    "id": "command-center",
+    "name": "Codex指令室",
+    "shortName": "COMMAND CENTER",
+    "description": "業務エリアへ未割当のCodexセッションを受け入れ、状態と作業場所を可視化する。",
+    "icon": "◎",
+    "axLevel": 3,
+    "progress": 40,
+    "status": "active",
+    "color": "#ff9f68",
+    "accent": "#4a2b22",
+    "position": { "x": 0, "y": 2 },
+    "nextAction": "未割当セッションを業務ラインへ紐づけ",
+    "files": [],
+    "prompts": ["ax-agent-assign", "ax-map"],
+    "prohibitedActions": ["担当業務を推測で確定しない", "権限境界を確認せず外部操作しない"],
+    "line": [
+      { "id": "thread-start", "label": "スレッド開始", "kind": "input", "status": "ready" },
+      { "id": "task-detect", "label": "業務判定", "kind": "machine", "status": "running" },
+      { "id": "agent-assign", "label": "担当割当", "kind": "approval", "status": "waiting" },
+      { "id": "area-connect", "label": "ライン接続", "kind": "output", "status": "ready" }
+    ]
+  }
+]

@@ -1,0 +1,4 @@
+interface:
+  display_name: "AX Runbook"
+  short_description: "Create safe human-and-AI operating runbooks"
+  default_prompt: "Use $ax-runbook to create a safe runbook with human approval gates."

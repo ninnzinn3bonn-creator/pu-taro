@@ -1,0 +1,67 @@
+[
+  {
+    "id": "task-guest-reply",
+    "businessAreaId": "guest-support",
+    "title": "Bookingメッセージ取込と返信案生成を接続",
+    "description": "受信データを言語判定・RAG参照・返信案生成へ流し、人間承認前で停止させる。",
+    "status": "in_progress",
+    "progress": 72,
+    "priority": "high",
+    "assigneeType": "agent",
+    "assigneeId": "agent-codex-guest",
+    "relatedFiles": ["facility_rules.md", "guest_reply_examples.md"],
+    "updatedAt": "2分前"
+  },
+  {
+    "id": "task-cleaning-flow",
+    "businessAreaId": "cleaning",
+    "title": "清掃依頼文の承認ゲートを実装",
+    "description": "清掃スタッフへの正式依頼前に、日付・担当・鍵情報を人間が確認する。",
+    "status": "waiting",
+    "progress": 58,
+    "priority": "high",
+    "assigneeType": "agent",
+    "assigneeId": "agent-codex-cleaning",
+    "relatedFiles": ["cleaning_calendar.csv", "staff_contacts.md"],
+    "updatedAt": "11分前"
+  },
+  {
+    "id": "task-price-research",
+    "businessAreaId": "pricing",
+    "title": "周辺価格データ取得を復旧",
+    "description": "取得元の形式変更に追従し、価格案生成前の入力検証を追加する。",
+    "status": "error",
+    "progress": 34,
+    "priority": "high",
+    "assigneeType": "agent",
+    "assigneeId": "agent-codex-pricing",
+    "relatedFiles": ["pricing_rules.md", "events_calendar.md"],
+    "updatedAt": "18分前"
+  },
+  {
+    "id": "task-monthly-close",
+    "businessAreaId": "accounting",
+    "title": "5月分の月次レポートを生成",
+    "description": "売上・手数料・清掃費・経費を集計し、前年差と改善候補を出力する。",
+    "status": "in_progress",
+    "progress": 83,
+    "priority": "medium",
+    "assigneeType": "agent",
+    "assigneeId": "agent-codex-accounting",
+    "relatedFiles": ["monthly_sales.csv", "expenses.xlsx"],
+    "updatedAt": "5分前"
+  },
+  {
+    "id": "task-rag-maintenance",
+    "businessAreaId": "guest-support",
+    "title": "チェックインFAQ更新",
+    "description": "直近の問い合わせから説明不足を抽出し、FAQ更新案を作成した。",
+    "status": "completed",
+    "progress": 100,
+    "priority": "medium",
+    "assigneeType": "agent",
+    "assigneeId": "agent-codex-rag",
+    "relatedFiles": ["faq.md", "nearby_info.md"],
+    "updatedAt": "1時間前"
+  }
+]

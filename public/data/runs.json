@@ -1,0 +1,46 @@
+[
+  {
+    "id": "run-1005",
+    "sessionId": "session-accounting",
+    "taskId": "task-monthly-close",
+    "summary": "月次売上CSVを集計",
+    "result": "売上・手数料・清掃費の集計が完了。委託料3件を照合中。",
+    "filesChanged": ["reports/2026-05.md", "data/commission-check.csv"],
+    "status": "running",
+    "startedAt": "14:22",
+    "completedAt": null
+  },
+  {
+    "id": "run-1004",
+    "sessionId": "session-pricing",
+    "taskId": "task-price-research",
+    "summary": "周辺価格データを取込",
+    "result": "CSV列名 price_per_night が見つからず停止。入力スキーマ確認が必要。",
+    "filesChanged": ["scripts/market-price-import.ts"],
+    "status": "error",
+    "startedAt": "14:09",
+    "completedAt": "14:11"
+  },
+  {
+    "id": "run-1003",
+    "sessionId": "session-cleaning",
+    "taskId": "task-cleaning-flow",
+    "summary": "清掃依頼文を生成",
+    "result": "6月24日分の依頼文を生成。担当・入室時刻・備品確認の承認待ち。",
+    "filesChanged": ["prompts/cleaning-request.md"],
+    "status": "completed",
+    "startedAt": "13:54",
+    "completedAt": "13:58"
+  },
+  {
+    "id": "run-1002",
+    "sessionId": "session-rag-library",
+    "taskId": "task-rag-maintenance",
+    "summary": "FAQ改善候補を抽出",
+    "result": "チェックイン時刻と駐車場案内の説明不足を更新案へ反映。",
+    "filesChanged": ["docs/faq.md", "docs/nearby_info.md"],
+    "status": "completed",
+    "startedAt": "12:40",
+    "completedAt": "12:53"
+  }
+]

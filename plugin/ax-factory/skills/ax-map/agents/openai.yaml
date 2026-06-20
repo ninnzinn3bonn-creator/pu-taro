@@ -1,0 +1,4 @@
+interface:
+  display_name: "AX Map"
+  short_description: "Map workspace operations into AX Factory JSON"
+  default_prompt: "Use $ax-map to update the AX Factory map from this workspace."

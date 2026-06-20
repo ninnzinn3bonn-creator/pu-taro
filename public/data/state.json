@@ -1,0 +1,48 @@
+{
+  "updatedAt": "2026-06-21 14:31 JST",
+  "source": "mock-state-file",
+  "sessions": [
+    {
+      "id": "session-guest-reply",
+      "status": "running",
+      "lastActivity": "2分前",
+      "currentAction": "RAG参照結果を返信案プロンプトへ接続中",
+      "progress": 72,
+      "changedFiles": ["src/guest-reply.ts", "prompts/guest-reply.md"]
+    },
+    {
+      "id": "session-cleaning",
+      "status": "waiting_approval",
+      "lastActivity": "11分前",
+      "currentAction": "清掃スタッフ向け依頼文の確認待ち",
+      "progress": 58,
+      "changedFiles": ["prompts/cleaning-request.md"]
+    },
+    {
+      "id": "session-pricing",
+      "status": "error",
+      "lastActivity": "18分前",
+      "currentAction": "周辺価格CSVの列構成が想定と不一致",
+      "progress": 34,
+      "changedFiles": ["scripts/market-price-import.ts"]
+    },
+    {
+      "id": "session-accounting",
+      "status": "running",
+      "lastActivity": "5分前",
+      "currentAction": "清掃費と委託料の照合表を生成中",
+      "progress": 83,
+      "changedFiles": ["reports/2026-05.md", "data/commission-check.csv"]
+    },
+    {
+      "id": "019ee593-ae3b-7183-9fb1-211503b095e1",
+      "title": "AX Factory MVP開発",
+      "workspace": "D:\\開発\\AIレディP\\ぷー太郎エディタ",
+      "status": "running",
+      "lastActivity": "現在",
+      "currentAction": "Overlay、Hooks、Skill群を統合中",
+      "progress": 76,
+      "changedFiles": ["src/App.tsx", "plugin/ax-factory/hooks/hooks.json"]
+    }
+  ]
+}

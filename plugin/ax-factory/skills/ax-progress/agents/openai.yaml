@@ -1,0 +1,4 @@
+interface:
+  display_name: "AX Progress"
+  short_description: "Synchronize verified work into AX Factory progress"
+  default_prompt: "Use $ax-progress to update task and session progress after this work."

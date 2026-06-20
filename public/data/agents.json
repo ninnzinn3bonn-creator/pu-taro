@@ -1,0 +1,62 @@
+[
+  {
+    "id": "agent-codex-guest",
+    "name": "Codex・フロント係",
+    "type": "codex",
+    "role": "ゲスト返信ラインの設計・修理",
+    "allowedTools": ["local files", "RAG search", "translation"],
+    "forbiddenActions": ["send email", "refund decision"],
+    "defaultPrompt": "ゲスト対応ラインを安全な半自動運用へ改善する。",
+    "status": "running"
+  },
+  {
+    "id": "agent-codex-cleaning",
+    "name": "Codex・清掃管制",
+    "type": "codex",
+    "role": "清掃依頼フローと完了確認",
+    "allowedTools": ["calendar data", "local files"],
+    "forbiddenActions": ["send external request"],
+    "defaultPrompt": "清掃依頼の確認項目と承認ゲートを整備する。",
+    "status": "waiting_approval"
+  },
+  {
+    "id": "agent-codex-pricing",
+    "name": "Codex・価格分析",
+    "type": "codex",
+    "role": "価格データ取得と変更案生成",
+    "allowedTools": ["CSV", "local files", "web research"],
+    "forbiddenActions": ["change live price"],
+    "defaultPrompt": "価格変更案を根拠つきで作成し、人間承認前で停止する。",
+    "status": "error"
+  },
+  {
+    "id": "agent-codex-accounting",
+    "name": "Codex・会計補助",
+    "type": "codex",
+    "role": "月次集計と経営レポート生成",
+    "allowedTools": ["CSV", "Excel", "local files"],
+    "forbiddenActions": ["overwrite source data"],
+    "defaultPrompt": "元データを保持し、照合可能な月次レポートを作る。",
+    "status": "running"
+  },
+  {
+    "id": "agent-codex-rag",
+    "name": "Codex・案内司書",
+    "type": "codex",
+    "role": "FAQと周辺案内RAGの改善",
+    "allowedTools": ["local files", "RAG search"],
+    "forbiddenActions": ["publish unverified facts"],
+    "defaultPrompt": "問い合わせログから案内情報の不足を改善する。",
+    "status": "completed"
+  },
+  {
+    "id": "agent-codex-unassigned",
+    "name": "Codex・未割当",
+    "type": "codex",
+    "role": "新規セッションの一時収容と業務判定",
+    "allowedTools": ["local files"],
+    "forbiddenActions": ["external side effects", "financial decisions", "send messages"],
+    "defaultPrompt": "現在の作業を特定し、適切なAX Factory業務エリアへ割り当てる。",
+    "status": "idle"
+  }
+]

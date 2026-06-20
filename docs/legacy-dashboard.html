@@ -1,0 +1,1536 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>地域AIエージェント実装プロジェクト 進捗ダッシュボード</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap");
+
+    :root {
+      --background: #f8fafc;
+      --foreground: #0f172a;
+      --muted: #64748b;
+      --muted-soft: #94a3b8;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --border-soft: #eef2f7;
+      --blue: #2563eb;
+      --blue-soft: #eff6ff;
+      --green: #16a34a;
+      --green-soft: #f0fdf4;
+      --amber: #d97706;
+      --amber-soft: #fffbeb;
+      --red: #dc2626;
+      --red-soft: #fef2f2;
+      --violet: #7c3aed;
+      --violet-soft: #f5f3ff;
+      --shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.04);
+      --radius: 12px;
+      --sidebar: 272px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-width: 320px;
+      background: var(--background);
+      color: var(--foreground);
+      font-family: "Inter", "Noto Sans JP", system-ui, sans-serif;
+      letter-spacing: 0;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top right, rgba(37, 99, 235, 0.08), transparent 28rem),
+        var(--background);
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: var(--sidebar) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      padding: 22px 18px;
+      border-right: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 4px 6px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 800;
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+      flex: 0 0 auto;
+    }
+
+    .brand-title {
+      min-width: 0;
+    }
+
+    .brand-title strong {
+      display: block;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .brand-title span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .side-section {
+      display: grid;
+      gap: 8px;
+    }
+
+    .side-label {
+      padding: 0 10px;
+      color: var(--muted-soft);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 40px;
+      padding: 9px 10px;
+      border-radius: 10px;
+      color: #334155;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .nav-item.active {
+      background: var(--blue-soft);
+      color: #1d4ed8;
+    }
+
+    .nav-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: currentColor;
+      opacity: 0.9;
+      flex: 0 0 auto;
+    }
+
+    .side-card {
+      margin-top: auto;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .side-card span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .side-card strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .main {
+      min-width: 0;
+      padding: 24px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 64px;
+      margin: -24px -24px 22px;
+      padding: 16px 24px;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.86);
+      background: rgba(248, 250, 252, 0.86);
+      backdrop-filter: blur(18px);
+    }
+
+    .page-title {
+      min-width: 0;
+    }
+
+    .page-title h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.35;
+      font-weight: 800;
+    }
+
+    .page-title p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+
+    .search-wrap {
+      position: relative;
+      width: min(320px, 34vw);
+      min-width: 220px;
+    }
+
+    .search {
+      width: 100%;
+      height: 38px;
+      padding: 0 12px 0 34px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--card);
+      color: var(--foreground);
+      outline: none;
+      box-shadow: 0 1px 1px rgba(15, 23, 42, 0.03);
+    }
+
+    .search:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .search-mark {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      width: 10px;
+      height: 10px;
+      border: 2px solid var(--muted-soft);
+      border-radius: 999px;
+      transform: translateY(-50%);
+    }
+
+    .search-mark::after {
+      content: "";
+      position: absolute;
+      right: -5px;
+      bottom: -4px;
+      width: 6px;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--muted-soft);
+      transform: rotate(45deg);
+    }
+
+    .date-pill {
+      display: inline-flex;
+      align-items: center;
+      height: 38px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--card);
+      color: #334155;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .content {
+      display: grid;
+      gap: 22px;
+      min-width: 0;
+    }
+
+    section {
+      min-width: 0;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.4;
+      font-weight: 800;
+    }
+
+    .section-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .segments {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card);
+      box-shadow: 0 1px 1px rgba(15, 23, 42, 0.03);
+    }
+
+    .segment {
+      height: 30px;
+      padding: 0 12px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .segment[aria-pressed="true"] {
+      background: #0f172a;
+      color: #fff;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1.35fr repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .overview-card {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 16px;
+      align-items: center;
+      padding: 18px;
+      min-height: 156px;
+    }
+
+    .donut {
+      --value: 60;
+      width: 108px;
+      height: 108px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle, #fff 0 57%, transparent 58%),
+        conic-gradient(var(--blue) calc(var(--value) * 1%), #e5e7eb 0);
+      box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.08);
+      flex: 0 0 auto;
+    }
+
+    .donut strong {
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .overview-card h2 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .overview-card p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .kpi-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px;
+      min-height: 156px;
+    }
+
+    .kpi-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .kpi-value {
+      font-size: 30px;
+      line-height: 1;
+      font-weight: 800;
+    }
+
+    .kpi-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .kpi-chip {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.9fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .project-card {
+      padding: 16px;
+      cursor: pointer;
+      transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    }
+
+    .project-card:hover {
+      border-color: #bfdbfe;
+      box-shadow: 0 10px 28px rgba(37, 99, 235, 0.08), var(--shadow);
+      transform: translateY(-1px);
+    }
+
+    .project-card.selected {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12), var(--shadow);
+    }
+
+    .project-top,
+    .task-top,
+    .stream-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .project-card h3,
+    .task-card h3,
+    .stream-card h3 {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.45;
+      font-weight: 800;
+    }
+
+    .percent {
+      color: var(--foreground);
+      font-size: 20px;
+      line-height: 1;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .meta-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      color: #475569;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .badge.green {
+      border-color: #bbf7d0;
+      background: var(--green-soft);
+      color: #15803d;
+    }
+
+    .badge.amber {
+      border-color: #fde68a;
+      background: var(--amber-soft);
+      color: #b45309;
+    }
+
+    .badge.red {
+      border-color: #fecaca;
+      background: var(--red-soft);
+      color: #b91c1c;
+    }
+
+    .badge.blue {
+      border-color: #bfdbfe;
+      background: var(--blue-soft);
+      color: #1d4ed8;
+    }
+
+    .summary {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .progress {
+      height: 8px;
+      margin-top: 14px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e5e7eb;
+    }
+
+    .progress span {
+      display: block;
+      width: var(--progress);
+      height: 100%;
+      border-radius: inherit;
+      background: var(--bar-color, var(--blue));
+    }
+
+    .detail-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .detail-list strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #334155;
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .pill {
+      max-width: 100%;
+      padding: 5px 8px;
+      border-radius: 8px;
+      background: #f8fafc;
+      color: #475569;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .path {
+      display: block;
+      margin-top: 12px;
+      color: var(--muted-soft);
+      font-family: "Inter", "Noto Sans JP", monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .detail-panel {
+      margin-top: 18px;
+      padding: 18px;
+      scroll-margin-top: 92px;
+    }
+
+    .detail-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .detail-header h2 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.35;
+      font-weight: 800;
+    }
+
+    .detail-header p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .detail-progress {
+      min-width: 128px;
+      text-align: right;
+    }
+
+    .detail-progress strong {
+      display: block;
+      font-size: 32px;
+      line-height: 1;
+      font-weight: 800;
+    }
+
+    .detail-progress span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .detail-box {
+      min-width: 0;
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #f8fafc;
+    }
+
+    .detail-box span,
+    .detail-list-card span,
+    .timeline-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+
+    .detail-box strong {
+      display: block;
+      margin-top: 7px;
+      font-size: 13px;
+      line-height: 1.65;
+      font-weight: 700;
+    }
+
+    .detail-columns {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .detail-list-card,
+    .timeline-card {
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .detail-list-card ul,
+    .timeline-card ul {
+      display: grid;
+      gap: 8px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .detail-list-card li,
+    .timeline-card li {
+      position: relative;
+      padding-left: 14px;
+      color: #334155;
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .detail-list-card li::before,
+    .timeline-card li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.72em;
+      width: 5px;
+      height: 5px;
+      border-radius: 999px;
+      background: var(--blue);
+    }
+
+    .dashboard-system {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .system-card {
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .system-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .system-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .right-rail {
+      display: grid;
+      gap: 18px;
+    }
+
+    .task-panel,
+    .stream-panel {
+      padding: 16px;
+    }
+
+    .task-list,
+    .stream-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .task-card,
+    .stream-card {
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .task-priority {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: #f1f5f9;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+
+    .task-title {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .task-card p,
+    .stream-card p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .stream-card {
+      display: grid;
+      gap: 10px;
+    }
+
+    .empty {
+      display: none;
+      padding: 24px;
+      border: 1px dashed #cbd5e1;
+      border-radius: var(--radius);
+      background: var(--card);
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .empty.show {
+      display: block;
+    }
+
+    @media (max-width: 1180px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+        display: block;
+        max-width: 100vw;
+        overflow: hidden;
+        padding: 14px 18px;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .brand {
+        margin-bottom: 12px;
+      }
+
+      .side-section {
+        display: flex;
+        max-width: 100%;
+        overflow-x: auto;
+        padding-bottom: 2px;
+      }
+
+      .side-label,
+      .side-card {
+        display: none;
+      }
+
+      .nav-item {
+        flex: 0 0 auto;
+        justify-content: center;
+        min-width: 120px;
+      }
+
+      .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .overview-card {
+        grid-column: 1 / -1;
+      }
+
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-system {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 780px) {
+      .main {
+        padding: 16px;
+      }
+
+      .topbar {
+        position: static;
+        flex-direction: column;
+        align-items: stretch;
+        margin: -16px -16px 18px;
+        padding: 16px;
+      }
+
+      .top-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-wrap {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .date-pill {
+        justify-content: center;
+      }
+
+      .section-head {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .segments {
+        overflow-x: auto;
+      }
+
+      .kpi-grid,
+      .project-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .overview-card {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-header,
+      .detail-columns {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-header {
+        flex-direction: column;
+      }
+
+      .detail-progress {
+        text-align: left;
+      }
+
+      .detail-grid,
+      .dashboard-system {
+        grid-template-columns: 1fr;
+      }
+
+      .donut {
+        width: 96px;
+        height: 96px;
+      }
+
+      .project-top,
+      .task-top,
+      .stream-top {
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="サイドバー">
+      <div class="brand">
+        <div class="brand-mark">AI</div>
+        <div class="brand-title">
+          <strong>地域AIエージェント</strong>
+          <span>Project Dashboard</span>
+        </div>
+      </div>
+
+      <nav class="side-section" aria-label="プロジェクトナビゲーション">
+        <div class="side-label">Workspace</div>
+        <a class="nav-item active" href="#overview"><span class="nav-dot"></span>概要</a>
+        <a class="nav-item" href="#projects"><span class="nav-dot"></span>進捗カード</a>
+        <a class="nav-item" href="#tasks"><span class="nav-dot"></span>次アクション</a>
+        <a class="nav-item" href="#workstreams"><span class="nav-dot"></span>作業領域</a>
+        <a class="nav-item" href="#ax"><span class="nav-dot"></span>AX導入</a>
+      </nav>
+
+      <div class="side-card">
+        <strong>運用メモ</strong>
+        <span>領域をまたぐ作業はPMセッションで確認。個別事例の実装は各事例フォルダへ戻す。</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="page-title">
+          <h1>進捗ダッシュボード</h1>
+          <p>民泊、プロパン屋さん、農業会社、AX導入ワークフロー、PM運用を一括管理</p>
+        </div>
+        <div class="top-actions">
+          <label class="search-wrap" aria-label="検索">
+            <span class="search-mark" aria-hidden="true"></span>
+            <input class="search" id="search" type="search" placeholder="プロジェクト、作業、領域で検索">
+          </label>
+          <div class="date-pill">更新日 2026-06-07</div>
+        </div>
+      </header>
+
+      <div class="content">
+        <section id="overview" aria-label="全体概要">
+          <div class="kpi-grid">
+            <article class="card overview-card">
+              <div class="donut" style="--value: 60"><strong>60%</strong></div>
+              <div>
+                <h2>全体進捗</h2>
+                <p>民泊は旗艦事例化が進み、プロパン屋さんは初回提案・小実験の型まで整備済み。AX導入ワークフローは共通部品として、設計思想、発見シート、評価表、面談手順、AGENTS.mdまで整備済み。</p>
+              </div>
+            </article>
+            <article class="card kpi-card">
+              <div class="kpi-chip">P</div>
+              <div>
+                <div class="kpi-label">進行中プロジェクト</div>
+                <div class="kpi-value">6</div>
+              </div>
+              <div class="kpi-note">PM、民泊、プロパン、農業、横展開、AX導入</div>
+            </article>
+            <article class="card kpi-card">
+              <div class="kpi-chip">T</div>
+              <div>
+                <div class="kpi-label">重点タスク</div>
+                <div class="kpi-value">3</div>
+              </div>
+              <div class="kpi-note">導入面談、素材受領、初回実験</div>
+            </article>
+            <article class="card kpi-card">
+              <div class="kpi-chip">C</div>
+              <div>
+                <div class="kpi-label">確認待ち</div>
+                <div class="kpi-value">6</div>
+              </div>
+              <div class="kpi-note">Auto House側の運用確認</div>
+            </article>
+            <article class="card kpi-card">
+              <div class="kpi-chip">N</div>
+              <div>
+                <div class="kpi-label">次の判断</div>
+                <div class="kpi-value">P2</div>
+              </div>
+              <div class="kpi-note">AX導入ワークフローを面談で使う</div>
+            </article>
+          </div>
+        </section>
+
+        <section id="projects">
+          <div class="section-head">
+            <div>
+              <h2>プロジェクト別進捗</h2>
+              <p>各領域の進行状況、完了済み、次にやることを一覧化</p>
+            </div>
+            <div class="segments" role="group" aria-label="状態フィルタ">
+              <button class="segment" data-filter="all" aria-pressed="true">全体</button>
+              <button class="segment" data-filter="green" aria-pressed="false">順調</button>
+              <button class="segment" data-filter="amber" aria-pressed="false">要注意</button>
+              <button class="segment" data-filter="red" aria-pressed="false">未着手多め</button>
+            </div>
+          </div>
+          <div class="main-grid">
+            <div>
+              <div class="project-grid" id="projectGrid"></div>
+              <div class="empty" id="emptyState">条件に合うプロジェクトがありません。</div>
+            </div>
+            <aside class="right-rail">
+              <section id="tasks" class="card task-panel">
+                <div class="section-head">
+                  <div>
+                    <h2>次アクション</h2>
+                    <p>上から順に着手</p>
+                  </div>
+                </div>
+                <div class="task-list" id="taskRows"></div>
+              </section>
+
+              <section id="workstreams" class="card stream-panel">
+                <div class="section-head">
+                  <div>
+                    <h2>作業領域</h2>
+                    <p>領域をまたぐ作業はPMで確認</p>
+                  </div>
+                </div>
+                <div class="stream-list" id="workstreamsList"></div>
+              </section>
+            </aside>
+          </div>
+          <section id="project-detail" class="card detail-panel" aria-live="polite"></section>
+          <section id="ax" aria-label="ダッシュボード運用要素">
+            <div class="section-head">
+              <div>
+                <h2>進捗ダッシュボードに必要な要素</h2>
+                <p>プロジェクトをAXしていく前に、現状を見える化して切り分けるための運用ビュー</p>
+              </div>
+            </div>
+            <div class="dashboard-system">
+              <article class="system-card">
+                <strong>現在地</strong>
+                <p>進捗率だけでなく、いま何の段階にいるかを短く表示する。</p>
+              </article>
+              <article class="system-card">
+                <strong>次の判断</strong>
+                <p>次に誰が何を決めると進むのかを明確にする。</p>
+              </article>
+              <article class="system-card">
+                <strong>詰まり</strong>
+                <p>素材待ち、判断待ち、担当不明など、止まっている理由を見える化する。</p>
+              </article>
+              <article class="system-card">
+                <strong>AX候補</strong>
+                <p>各プロジェクトの中で、入力・処理・出力が明確な作業を拾う。</p>
+              </article>
+            </div>
+          </section>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const projectData = [
+      {
+        id: "pm",
+        title: "PM・全体管理",
+        percent: 66,
+        status: "green",
+        phase: "管理基盤",
+        owner: "PMセッション",
+        path: "00_プロジェクト管理",
+        summary: "作業領域ルール、PMプロンプト、次アクション、進捗ダッシュボードを整備中。",
+        done: ["プロジェクト憲章", "作業領域ルール", "PM初期プロンプト", "次アクション"],
+        next: ["月次レビュー形式", "各事例セッションの入口整備", "ダッシュボード更新運用"],
+        detail: {
+          objective: "全体プロジェクトを領域ごとに分け、作業が混ざらない状態で進める。",
+          focus: "ダッシュボードを中心に、各セッションの入口と次アクションを管理する。",
+          decision: "AX導入ワークフローを共通部品として各事例へどう接続するか。",
+          risk: "個別事例の作業がPM領域に混ざると、責任範囲と成果物が曖昧になる。",
+          cadence: "大きな作業後に都度更新",
+          axView: "プロジェクト管理そのものをAIエージェントで運用する実証例。",
+          artifacts: ["プロジェクト憲章", "作業領域ルール", "PMエージェント用プロンプト", "進捗ダッシュボード"],
+          activity: ["AX導入ワークフローを共通部品化", "進捗ダッシュボードをSaaS風UIへ刷新", "カード詳細ビューを追加"]
+        }
+      },
+      {
+        id: "ax-workflow",
+        title: "AX導入ワークフロー",
+        percent: 76,
+        status: "green",
+        phase: "共通導入部品",
+        owner: "AX導入ワークフロー支援エージェント",
+        path: "00_プロジェクト管理/02_AX導入ワークフロー",
+        summary: "設計思想、発見シート、候補評価表、導入面談、説明トーク、初回実験化シート、AGENTS.mdまで整備済み。各事例で使える共通部品。",
+        done: ["設計思想", "発見シート", "候補評価表", "面談手順", "説明トーク", "初回実験化シート", "AGENTS.md"],
+        next: ["プロジェクトダッシュボード導入を初手メニュー化する", "初回面談で使う", "実際の面談ログから改善する"],
+        detail: {
+          objective: "相手の通常プロジェクトをまず見える化し、その後AX候補へ切り分ける導入フローを作る。",
+          focus: "最初にプロジェクトダッシュボードを作り、相手が抱えている活動を一目で見えるようにする。",
+          decision: "初回面談で、通常プロジェクト棚卸しから入るか、AX候補発見から入るかを選ぶ。",
+          risk: "AI化の話を急ぐと、相手の現状プロジェクトが整理されず、導入効果が伝わりにくい。",
+          cadence: "面談ごとに更新",
+          axView: "プロジェクトを見える化し、入力・処理・出力が明確な小作業へ切り出す入口。",
+          artifacts: ["README", "AGENTS.md", "小さなワークフロー発見シート", "初回実験化シート", "08_プロジェクトダッシュボード導入.md"],
+          activity: ["AX導入ワークフローを作成", "AGENTS.mdで案内役を定義", "進捗ダッシュボード導入を初手メニューへ追加"]
+        }
+      },
+      {
+        id: "minpaku",
+        title: "民泊事例 / Auto House",
+        percent: 88,
+        status: "green",
+        phase: "旗艦事例化",
+        owner: "民泊事例セッション + Auto House",
+        path: "02_事例/01_民泊事例 / D:/開発/auto house",
+        summary: "外向き説明、Before/After、横展開、ロボット要件、PM戻しメモまで整理済み。",
+        done: ["旗艦事例説明", "外向き短縮版", "プロパン向け出し方", "農業向け出し方"],
+        next: ["必要ならスライド構成", "Auto House側の進捗継続参照", "デモ用サンプル作成"],
+        detail: {
+          objective: "民泊の実装を旗艦事例として整理し、他業種に見せられる形にする。",
+          focus: "実装内容を外向きに説明できる素材へ変換し、プロパン屋さんや農業会社への橋渡しに使う。",
+          decision: "次に必要なのはスライド強化か、Auto House側の実装進捗取得か。",
+          risk: "実装正本がAuto House側にあるため、こちらの説明資料が古くなる可能性がある。",
+          cadence: "Auto House側確認時に更新",
+          axView: "問い合わせ対応、返信文案、チェックイン案内など、入出力が明確な業務の事例。",
+          artifacts: ["旗艦事例説明", "Before/After", "外向き短縮版", "スライド"],
+          activity: ["プロパン屋さん向けスライドを調整", "Auto House素材をスライドに反映", "他事例への出し方を整理"]
+        }
+      },
+      {
+        id: "propane",
+        title: "プロパン屋さん事例",
+        percent: 48,
+        status: "amber",
+        phase: "初回実験待ち",
+        owner: "プロパン屋さん事例セッション",
+        path: "02_事例/02_プロパン屋さん事例",
+        summary: "ヒアリング、提案文、実験設計、素材依頼、セッション入口まで整理済み。次は直近イベントか会議メモを1つもらう。",
+        done: ["事例概要", "ヒアリング項目", "提案文", "初回実験設計", "プロンプト集", "面談アジェンダ"],
+        next: ["直近イベントか会議メモを1つもらう", "イベント前準備リストを作る", "連絡文案と担当・期限を作る"],
+        detail: {
+          objective: "地域活動AI事務局として、準備や連絡の手間を小さく減らす実験を作る。",
+          focus: "中心的に取り仕切る人がいない活動で、イベント前準備をAIで整理する。",
+          decision: "直近イベント、会議メモ、過去案内文のどれを初回素材にするか。",
+          risk: "具体素材がないと、提案はできても実験成果物まで進めない。",
+          cadence: "素材受領時に更新",
+          axView: "会議メモ、連絡文、準備リストなど、AIに渡しやすい地域活動ワークフロー。",
+          artifacts: ["事例概要", "地域活動AI事務局_提案文", "初回実験テンプレート", "素材依頼リスト"],
+          activity: ["提案文とヒアリング項目を作成", "初回実験テーマを整理", "実験用テンプレートを作成"]
+        }
+      },
+      {
+        id: "agri",
+        title: "農業会社事例",
+        percent: 22,
+        status: "amber",
+        phase: "記録テーマ選定",
+        owner: "農業会社事例セッション",
+        path: "02_事例/03_農業会社事例",
+        summary: "農業全体ではなく、水路・草刈り・共同作業記録に絞る方針。",
+        done: ["水路・草刈り・共同作業記録", "民泊からの出し方整理"],
+        next: ["作業記録テンプレート", "水路記録テンプレート", "草刈り記録テンプレート"],
+        detail: {
+          objective: "農業会社の作業記録を、将来の計画や共同作業の引き継ぎに使える形へ整える。",
+          focus: "農業全体ではなく、水路・草刈り・共同作業記録に絞る。",
+          decision: "最初に水路、草刈り、共同作業のどの記録テンプレートから作るか。",
+          risk: "対象範囲を広げすぎると、実装単位が大きくなり進みにくい。",
+          cadence: "テンプレート作成時に更新",
+          axView: "写真、メモ、作業時間、区間情報を整理して記録化するワークフロー。",
+          artifacts: ["水路・草刈り・共同作業記録"],
+          activity: ["対象を水路・草刈りに絞る方針を整理", "民泊からの出し方を接続"]
+        }
+      },
+      {
+        id: "rollout",
+        title: "横展開・外向き説明",
+        percent: 52,
+        status: "amber",
+        phase: "説明素材化",
+        owner: "PMセッション",
+        path: "02_事例/01_民泊事例",
+        summary: "民泊の説明素材は整った。次は相手別の提案資料へ落とし込む。",
+        done: ["地域企業向け説明文", "1枚説明アウトライン", "初回デモ項目"],
+        next: ["プロパン向け提案", "農業向け記録テンプレ", "3分版・10分版"],
+        detail: {
+          objective: "民泊事例を、地域企業や他業種に伝わる説明素材へ展開する。",
+          focus: "相手別に刺さる文脈へ変換し、初回提案で使える状態にする。",
+          decision: "次に作るべきは3分版、10分版、相手別提案資料のどれか。",
+          risk: "説明が抽象的になると、相手が自分の業務に引き寄せられない。",
+          cadence: "提案先ごとに更新",
+          axView: "事例をもとに、相手の業務を小さなAX候補へ翻訳する導線。",
+          artifacts: ["地域企業向け説明文", "1枚説明アウトライン", "初回デモ項目"],
+          activity: ["民泊の外向き説明を整理", "相手別の出し方を作成"]
+        }
+      }
+    ];
+
+    const workstreamData = [
+      { title: "PM判断", owner: "00_PMセッション", percent: 66, status: "green", next: "次はプロパン屋さん事例の素材受領と初回実験を確認。" },
+      { title: "導入共通部品", owner: "02_AX導入ワークフロー", percent: 76, status: "green", next: "AGENTS.mdまで整備済み。次は初回面談や各事例で実際に使う。" },
+      { title: "旗艦事例", owner: "01_民泊事例", percent: 88, status: "green", next: "必要に応じてスライド化。実装正本はAuto House。" },
+      { title: "他者展開", owner: "02_プロパン屋さん事例", percent: 48, status: "amber", next: "初回提案パッケージ完了。次は素材を受け取り、イベント前準備リストを作る。" },
+      { title: "地域インフラ", owner: "03_農業会社事例", percent: 22, status: "amber", next: "水路・草刈りの記録テンプレートを作る。" }
+    ];
+
+    const taskData = [
+      {
+        priority: 1,
+        target: "AX導入",
+        task: "AX導入ワークフローを初回面談で使い、小さなワークフローを1つ抽出する",
+        output: "00_プロジェクト管理/02_AX導入ワークフロー/06_初回実験化シート.md",
+        status: "次"
+      },
+      {
+        priority: 2,
+        target: "プロパン屋さん",
+        task: "直近イベントか会議メモを1つもらう",
+        output: "02_事例/02_プロパン屋さん事例/素材依頼リスト.md",
+        status: "次"
+      },
+      {
+        priority: 3,
+        target: "プロパン屋さん",
+        task: "イベント前準備リストを作る",
+        output: "02_事例/02_プロパン屋さん事例/実験_イベント準備リスト.md",
+        status: "次"
+      },
+      {
+        priority: 4,
+        target: "プロパン屋さん",
+        task: "連絡文案、担当者と期限、引き継ぎメモを作る",
+        output: "02_事例/02_プロパン屋さん事例/実験_連絡文案と役割整理.md",
+        status: "次"
+      },
+      {
+        priority: 5,
+        target: "農業会社",
+        task: "水路・草刈り・共同作業の記録テンプレートを作る",
+        output: "02_事例/03_農業会社事例/*記録テンプレート.md",
+        status: "待機"
+      },
+      {
+        priority: 6,
+        target: "民泊",
+        task: "外向き説明をスライド構成へ変換する",
+        output: "02_事例/01_民泊事例/外向きプレゼン用_スライド構成.md",
+        status: "任意"
+      }
+    ];
+
+    const statusLabel = {
+      green: "順調",
+      amber: "要注意",
+      red: "未着手多め"
+    };
+
+    const statusColor = {
+      green: "var(--green)",
+      amber: "var(--amber)",
+      red: "var(--red)"
+    };
+
+    const grid = document.querySelector("#projectGrid");
+    const taskRows = document.querySelector("#taskRows");
+    const streams = document.querySelector("#workstreamsList");
+    const detailPanel = document.querySelector("#project-detail");
+    const emptyState = document.querySelector("#emptyState");
+    const search = document.querySelector("#search");
+    const buttons = Array.from(document.querySelectorAll(".segment"));
+    let activeFilter = "all";
+    let selectedProjectId = location.hash.startsWith("#detail-")
+      ? location.hash.replace("#detail-", "")
+      : "ax-workflow";
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function projectMatches(project) {
+      const keyword = search.value.trim().toLowerCase();
+      const statusMatch = activeFilter === "all" || project.status === activeFilter;
+      const text = [
+        project.title,
+        project.phase,
+        project.owner,
+        project.path,
+        project.summary,
+        project.done.join(" "),
+        project.next.join(" ")
+      ].join(" ").toLowerCase();
+      return statusMatch && (!keyword || text.includes(keyword));
+    }
+
+    function renderProjects() {
+      const visible = projectData.filter(projectMatches);
+      emptyState.classList.toggle("show", visible.length === 0);
+      grid.innerHTML = visible.map(project => `
+        <article class="card project-card ${project.id === selectedProjectId ? "selected" : ""}" id="${escapeHtml(project.id)}" data-project-id="${escapeHtml(project.id)}" tabindex="0" role="button" aria-label="${escapeHtml(project.title)}の詳細を見る">
+          <div class="project-top">
+            <div>
+              <h3>${escapeHtml(project.title)}</h3>
+              <div class="meta-line">
+                <span class="badge ${project.status}">${statusLabel[project.status]}</span>
+                <span class="badge blue">${escapeHtml(project.phase)}</span>
+              </div>
+            </div>
+            <div class="percent">${project.percent}%</div>
+          </div>
+          <p class="summary">${escapeHtml(project.summary)}</p>
+          <div class="progress" aria-label="${escapeHtml(project.title)} ${project.percent}%">
+            <span style="--progress: ${project.percent}%; --bar-color: ${statusColor[project.status]}"></span>
+          </div>
+          <div class="detail-list">
+            <div>
+              <strong>完了・進行中</strong>
+              <div class="pill-list">${project.done.map(item => `<span class="pill">${escapeHtml(item)}</span>`).join("")}</div>
+            </div>
+            <div>
+              <strong>次</strong>
+              <div class="pill-list">${project.next.map(item => `<span class="pill">${escapeHtml(item)}</span>`).join("")}</div>
+            </div>
+          </div>
+          <span class="path">${escapeHtml(project.path)}</span>
+        </article>
+      `).join("");
+      grid.querySelectorAll(".project-card").forEach(card => {
+        card.addEventListener("click", () => selectProject(card.dataset.projectId, true));
+        card.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            selectProject(card.dataset.projectId, true);
+          }
+        });
+      });
+    }
+
+    function renderDetail(project) {
+      const detail = project.detail || {};
+      detailPanel.innerHTML = `
+        <div class="detail-header">
+          <div>
+            <div class="meta-line">
+              <span class="badge ${project.status}">${statusLabel[project.status]}</span>
+              <span class="badge blue">${escapeHtml(project.phase)}</span>
+            </div>
+            <h2>${escapeHtml(project.title)}</h2>
+            <p>${escapeHtml(detail.objective || project.summary)}</p>
+          </div>
+          <div class="detail-progress">
+            <strong>${project.percent}%</strong>
+            <span>現在進捗</span>
+          </div>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-box">
+            <span>現在の焦点</span>
+            <strong>${escapeHtml(detail.focus || project.summary)}</strong>
+          </div>
+          <div class="detail-box">
+            <span>次の判断</span>
+            <strong>${escapeHtml(detail.decision || project.next[0] || "未設定")}</strong>
+          </div>
+          <div class="detail-box">
+            <span>リスク・詰まり</span>
+            <strong>${escapeHtml(detail.risk || "大きな詰まりなし")}</strong>
+          </div>
+          <div class="detail-box">
+            <span>担当領域</span>
+            <strong>${escapeHtml(project.owner)}</strong>
+          </div>
+          <div class="detail-box">
+            <span>更新頻度</span>
+            <strong>${escapeHtml(detail.cadence || "都度更新")}</strong>
+          </div>
+          <div class="detail-box">
+            <span>AX視点</span>
+            <strong>${escapeHtml(detail.axView || "入力・処理・出力を整理してAX候補を抽出する。")}</strong>
+          </div>
+        </div>
+        <div class="detail-columns">
+          <div class="detail-list-card">
+            <span>主要成果物</span>
+            <ul>${(detail.artifacts || project.done).map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+            <span class="path">${escapeHtml(project.path)}</span>
+          </div>
+          <div class="detail-list-card">
+            <span>次にやること</span>
+            <ul>${project.next.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+          </div>
+        </div>
+        <div class="detail-columns">
+          <div class="timeline-card">
+            <span>最近の動き</span>
+            <ul>${(detail.activity || project.done).map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+          </div>
+          <div class="timeline-card">
+            <span>詳細を見る時の確認ポイント</span>
+            <ul>
+              <li>進捗率よりも、次に何を判断すれば進むかを見る。</li>
+              <li>素材待ち、担当不明、判断待ちを分ける。</li>
+              <li>AX候補は入力・処理・出力が説明できる作業から拾う。</li>
+            </ul>
+          </div>
+        </div>
+      `;
+    }
+
+    function selectProject(projectId, shouldScroll = false) {
+      const project = projectData.find(item => item.id === projectId) || projectData[0];
+      selectedProjectId = project.id;
+      history.replaceState(null, "", `#detail-${project.id}`);
+      renderDetail(project);
+      grid.querySelectorAll(".project-card").forEach(card => {
+        card.classList.toggle("selected", card.dataset.projectId === project.id);
+      });
+      if (shouldScroll) {
+        detailPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    function renderTasks() {
+      taskRows.innerHTML = taskData.map(item => `
+        <article class="task-card">
+          <div class="task-top">
+            <div class="task-title">
+              <div class="task-priority">${item.priority}</div>
+              <div>
+                <h3>${escapeHtml(item.target)}</h3>
+                <p>${escapeHtml(item.task)}</p>
+              </div>
+            </div>
+            <span class="badge ${item.status === "次" ? "green" : "amber"}">${escapeHtml(item.status)}</span>
+          </div>
+          <span class="path">${escapeHtml(item.output)}</span>
+        </article>
+      `).join("");
+    }
+
+    function renderWorkstreams() {
+      streams.innerHTML = workstreamData.map(item => `
+        <article class="stream-card">
+          <div class="stream-top">
+            <div>
+              <h3>${escapeHtml(item.title)}</h3>
+              <p>${escapeHtml(item.owner)}</p>
+            </div>
+            <span class="badge ${item.status}">${item.percent}%</span>
+          </div>
+          <div class="progress" aria-label="${escapeHtml(item.title)} ${item.percent}%">
+            <span style="--progress: ${item.percent}%; --bar-color: ${statusColor[item.status]}"></span>
+          </div>
+          <p>${escapeHtml(item.next)}</p>
+        </article>
+      `).join("");
+    }
+
+    buttons.forEach(button => {
+      button.addEventListener("click", () => {
+        activeFilter = button.dataset.filter;
+        buttons.forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+        renderProjects();
+      });
+    });
+
+    search.addEventListener("input", renderProjects);
+    renderProjects();
+    renderTasks();
+    renderWorkstreams();
+    selectProject(selectedProjectId, false);
+  </script>
+</body>
+</html>

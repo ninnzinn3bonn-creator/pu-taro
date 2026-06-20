@@ -1,0 +1,4 @@
+interface:
+  display_name: "AX Blueprint"
+  short_description: "Turn a business workflow into a reusable blueprint"
+  default_prompt: "Use $ax-blueprint to turn this workflow into an AX Factory blueprint."

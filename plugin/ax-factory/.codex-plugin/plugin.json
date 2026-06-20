@@ -1,0 +1,29 @@
+{
+  "name": "ax-factory",
+  "version": "0.1.0",
+  "description": "Visualize and operate business automation workflows as a Codex-powered factory.",
+  "author": {
+    "name": "ninnzinn3bonn-creator",
+    "url": "https://github.com/ninnzinn3bonn-creator"
+  },
+  "homepage": "https://github.com/ninnzinn3bonn-creator/pu-taro",
+  "repository": "https://github.com/ninnzinn3bonn-creator/pu-taro",
+  "keywords": ["codex", "automation", "business-operations", "ax", "visualization"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "AX Factory for Codex",
+    "shortDescription": "Turn Codex work into visible business automation lines.",
+    "longDescription": "Map business operations, Codex sessions, human approval gates, execution logs, and reusable blueprints into an AX Factory workflow.",
+    "developerName": "ninnzinn3bonn-creator",
+    "category": "Productivity",
+    "capabilities": ["Interactive", "Write"],
+    "defaultPrompt": [
+      "Use AX Factory to map this workspace into business areas and automation lines.",
+      "Create a safe blueprint for this workflow with human approval gates.",
+      "Update AX progress from the work completed in this thread."
+    ],
+    "brandColor": "#43E8B8",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png"
+  }
+}

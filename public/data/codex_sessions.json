@@ -1,0 +1,72 @@
+[
+  {
+    "id": "session-guest-reply",
+    "title": "ゲスト返信ライン実装",
+    "relatedBusinessAreaId": "guest-support",
+    "relatedTaskId": "task-guest-reply",
+    "agentId": "agent-codex-guest",
+    "status": "running",
+    "lastActivity": "2分前",
+    "currentAction": "RAG参照結果を返信案プロンプトへ接続中",
+    "displayCharacter": "pet-girl",
+    "sessionUrl": "codex://thread/guest-reply",
+    "progress": 72,
+    "changedFiles": ["src/guest-reply.ts", "prompts/guest-reply.md"]
+  },
+  {
+    "id": "session-rag-library",
+    "title": "FAQ・案内RAG整備",
+    "relatedBusinessAreaId": "guest-support",
+    "relatedTaskId": "task-rag-maintenance",
+    "agentId": "agent-codex-rag",
+    "status": "completed",
+    "lastActivity": "1時間前",
+    "currentAction": "FAQ更新案を納品済み",
+    "displayCharacter": "pet-girl",
+    "sessionUrl": "codex://thread/rag-library",
+    "progress": 100,
+    "changedFiles": ["docs/faq.md", "docs/nearby_info.md"]
+  },
+  {
+    "id": "session-cleaning",
+    "title": "清掃依頼承認フロー",
+    "relatedBusinessAreaId": "cleaning",
+    "relatedTaskId": "task-cleaning-flow",
+    "agentId": "agent-codex-cleaning",
+    "status": "waiting_approval",
+    "lastActivity": "11分前",
+    "currentAction": "清掃スタッフ向け依頼文の確認待ち",
+    "displayCharacter": "pet-girl",
+    "sessionUrl": "codex://thread/cleaning-flow",
+    "progress": 58,
+    "changedFiles": ["prompts/cleaning-request.md"]
+  },
+  {
+    "id": "session-pricing",
+    "title": "価格データ取得修復",
+    "relatedBusinessAreaId": "pricing",
+    "relatedTaskId": "task-price-research",
+    "agentId": "agent-codex-pricing",
+    "status": "error",
+    "lastActivity": "18分前",
+    "currentAction": "周辺価格CSVの列構成が想定と不一致",
+    "displayCharacter": "pet-girl",
+    "sessionUrl": "codex://thread/pricing-research",
+    "progress": 34,
+    "changedFiles": ["scripts/market-price-import.ts"]
+  },
+  {
+    "id": "session-accounting",
+    "title": "5月月次会計",
+    "relatedBusinessAreaId": "accounting",
+    "relatedTaskId": "task-monthly-close",
+    "agentId": "agent-codex-accounting",
+    "status": "running",
+    "lastActivity": "5分前",
+    "currentAction": "清掃費と委託料の照合表を生成中",
+    "displayCharacter": "pet-girl",
+    "sessionUrl": "codex://thread/monthly-close",
+    "progress": 83,
+    "changedFiles": ["reports/2026-05.md", "data/commission-check.csv"]
+  }
+]

@@ -1,0 +1,4 @@
+interface:
+  display_name: "AX Agent Assign"
+  short_description: "Assign safe agent roles, tools, and approval boundaries"
+  default_prompt: "Use $ax-agent-assign to assign this task to a safe agent role."
