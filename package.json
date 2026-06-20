@@ -5,23 +5,22 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "node scripts/build.mjs",
     "preview": "vite preview",
     "lint": "eslint .",
     "check:data": "node scripts/validate-data.mjs",
     "bridge": "node scripts/state-bridge.mjs",
     "test:hooks": "node scripts/test-hook-recorder.mjs",
-    "validate:plugin": "python C:/Users/PC_User/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py plugin/ax-factory"
+    "validate:plugin": "node scripts/validate-plugin.mjs",
+    "check": "npm run lint && npm run check:data && npm run test:hooks && npm run validate:plugin && npm run build"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "^4.4.1",
-    "vite": "^6.3.5",
-    "typescript": "~5.8.3",
+    "lucide-react": "^0.468.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "lucide-react": "^0.468.0"
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.4.1",
     "@eslint/js": "^9.25.1",
     "@types/node": "^22.15.3",
     "@types/react": "^19.1.2",
@@ -30,6 +29,11 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
     "typescript-eslint": "^8.31.1"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

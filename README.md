@@ -11,6 +11,8 @@ npm run dev
 
 ブラウザで `http://127.0.0.1:4173` を開きます。
 
+Node.js 22以上を使用してください。Windows版Codexに同梱されたNodeが利用可能な場合、`npm run build` は互換ランタイムを自動選択します。別のNodeを指定する場合は `AX_FACTORY_NODE` に実行ファイルを設定できます。
+
 ## 現在の実装
 
 - 民泊業務を施設・機械・ライン・承認ゲートとして表示
@@ -62,6 +64,12 @@ Plugin検証:
 
 ```powershell
 npm run validate:plugin
+```
+
+全チェック:
+
+```powershell
+npm run check
 ```
 
 既存の進捗ダッシュボードは `docs/legacy-dashboard.html` に退避して参照可能にします。
