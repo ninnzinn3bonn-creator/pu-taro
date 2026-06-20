@@ -1,0 +1,20 @@
+{
+  "name": "ax-factory-local",
+  "interface": {
+    "displayName": "AX Factory Local"
+  },
+  "plugins": [
+    {
+      "name": "ax-factory",
+      "source": {
+        "source": "local",
+        "path": "./plugin/ax-factory"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

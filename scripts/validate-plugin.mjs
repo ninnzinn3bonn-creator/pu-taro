@@ -3,6 +3,7 @@ import { dirname, join, resolve } from "node:path";
 
 const pluginRoot = resolve(process.argv[2] || "plugin/ax-factory");
 const manifestPath = join(pluginRoot, ".codex-plugin", "plugin.json");
+const marketplacePath = resolve(".agents/plugins/marketplace.json");
 const errors = [];
 
 async function exists(path) {
@@ -87,6 +88,27 @@ if (!(await exists(skillsDir))) {
 }
 
 if (JSON.stringify(manifest).includes("[TODO")) errors.push("Manifest contains unresolved TODO");
+
+if (await exists(marketplacePath)) {
+  try {
+    const marketplace = JSON.parse(await readFile(marketplacePath, "utf8"));
+    const entry = marketplace.plugins?.find((item) => item.name === name);
+    if (!entry) {
+      errors.push(`Marketplace does not expose plugin ${name}`);
+    } else {
+      if (entry.source?.source !== "local") {
+        errors.push("Marketplace plugin source must be local");
+      }
+      if (!String(entry.source?.path || "").startsWith("./")) {
+        errors.push("Marketplace source.path must start with ./");
+      } else if (!(await exists(resolve(entry.source.path)))) {
+        errors.push(`Marketplace source path does not exist: ${entry.source.path}`);
+      }
+    }
+  } catch (error) {
+    errors.push(`Invalid marketplace JSON: ${error.message}`);
+  }
+}
 
 if (errors.length) {
   console.error(errors.join("\n"));

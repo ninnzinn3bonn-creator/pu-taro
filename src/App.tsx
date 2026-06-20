@@ -6,6 +6,7 @@ import {
   Building2,
   CheckCircle2,
   Clock3,
+  Database,
   Factory,
   Gauge,
   RefreshCw,
@@ -20,22 +21,29 @@ import { AchievementToast } from "./components/AchievementToast";
 import { ApprovalGate } from "./components/ApprovalGate";
 import { FactoryMap } from "./components/FactoryMap";
 import { SessionPanel } from "./components/SessionPanel";
+import { SourceHealthPanel } from "./components/SourceHealthPanel";
 import { SESSION_META } from "./constants";
 import { useFactoryData } from "./hooks/useFactoryData";
 import type { Approval, SessionStatus } from "./types";
 
 type BottomTab = "activity" | "approvals" | "errors";
+type PrimaryView = "factory" | "source";
 
 function App() {
   const {
     data,
     factoryState,
+    sourceSnapshot,
+    auditJournal,
+    runtimeConnected,
     error,
     updateSessionStatus,
     updateApprovalStatus,
     resetLocalState,
+    clearJournal,
     refresh
   } = useFactoryData();
+  const [primaryView, setPrimaryView] = useState<PrimaryView>("factory");
   const [selectedAreaId, setSelectedAreaId] = useState("guest-support");
   const [selectedSessionId, setSelectedSessionId] = useState("session-guest-reply");
   const [areaFilter, setAreaFilter] = useState("all");
@@ -53,6 +61,13 @@ function App() {
     data?.sessions.find((session) => session.relatedBusinessAreaId === selectedAreaId);
   const selectedAgent = data?.agents.find((agent) => agent.id === selectedSession?.agentId);
   const selectedTask = data?.tasks.find((task) => task.id === selectedSession?.relatedTaskId);
+  const selectedAreaTask =
+    selectedTask ??
+    data?.tasks.find(
+      (task) =>
+        task.businessAreaId === selectedAreaId &&
+        task.status !== "completed"
+    );
 
   const visibleAreas = useMemo(() => {
     if (!data) return [];
@@ -175,14 +190,26 @@ function App() {
         </div>
 
         <div className="topbar-status">
-          <span className={`sync-state ${error ? "sync-error" : ""}`}>
+          <span
+            className={`sync-state ${error ? "sync-error" : ""} ${
+              sourceSnapshot?.live ? "sync-live" : ""
+            }`}
+          >
             <i />
-            {error ? "同期エラー" : "STATE SYNC"}
+            {error
+              ? "同期エラー"
+              : sourceSnapshot?.live
+                ? "READ-ONLY LIVE"
+                : "DEMO DATA"}
           </span>
           <button type="button" className="icon-button" onClick={() => void refresh()} title="再同期">
             <RefreshCw size={16} />
           </button>
-          <span className="sync-time">{factoryState?.updatedAt ?? "未同期"}</span>
+          <span className="sync-time">
+            {sourceSnapshot?.live
+              ? new Date(sourceSnapshot.generatedAt).toLocaleString("ja-JP")
+              : factoryState?.updatedAt ?? "未同期"}
+          </span>
           <button className="notification-button" type="button" onClick={() => setBottomTab("approvals")}>
             <BellRing size={17} />
             {stats.pending > 0 && <span>{stats.pending}</span>}
@@ -192,9 +219,22 @@ function App() {
 
       <aside className="left-rail">
         <nav className="primary-nav" aria-label="メインナビゲーション">
-          <button type="button" className="nav-item active">
+          <button
+            type="button"
+            className={`nav-item ${primaryView === "factory" ? "active" : ""}`}
+            onClick={() => setPrimaryView("factory")}
+          >
             <Building2 size={17} />
             <span>工場マップ</span>
+          </button>
+          <button
+            type="button"
+            className={`nav-item ${primaryView === "source" ? "active" : ""}`}
+            onClick={() => setPrimaryView("source")}
+          >
+            <Database size={17} />
+            <span>データソース</span>
+            <small>{sourceSnapshot?.health.warnings.length ?? 0}</small>
           </button>
           <button type="button" className="nav-item">
             <Bot size={17} />
@@ -254,9 +294,19 @@ function App() {
       <main className="workspace">
         <section className="workspace-head">
           <div>
-            <span className="eyebrow">BUSINESS DIGITAL TWIN</span>
-            <h1>民泊AX オペレーションフロア</h1>
-            <p>業務ライン、Codexセッション、人間承認の詰まりを一画面で監督します。</p>
+            <span className="eyebrow">
+              {primaryView === "factory" ? "BUSINESS DIGITAL TWIN" : "DATA GOVERNANCE"}
+            </span>
+            <h1>
+              {primaryView === "factory"
+                ? "民泊AX オペレーションフロア"
+                : "民泊正本データ・品質監視"}
+            </h1>
+            <p>
+              {primaryView === "factory"
+                ? "業務ライン、Codexセッション、人間承認の詰まりを一画面で監督します。"
+                : "Auto Houseを読み取り専用で参照し、集計値・鮮度・欠損・安全境界を確認します。"}
+            </p>
           </div>
           <div className="kpi-strip">
             <div>
@@ -282,25 +332,34 @@ function App() {
           </div>
         </section>
 
-        {visibleAreas.length ? (
-          <FactoryMap
-            areas={visibleAreas}
-            sessions={data.sessions}
-            agents={data.agents}
-            selectedAreaId={selectedAreaId}
-            selectedSessionId={selectedSession?.id}
-            onSelectArea={selectArea}
-            onSelectSession={selectSession}
+        {primaryView === "source" ? (
+          <SourceHealthPanel
+            snapshot={sourceSnapshot}
+            journal={auditJournal}
+            runtimeConnected={runtimeConnected}
+            onClearJournal={clearJournal}
           />
         ) : (
-          <div className="map-empty">
-            <Search size={28} />
-            <strong>該当する業務ラインがありません</strong>
-            <span>検索語またはフィルターを変更してください。</span>
-          </div>
-        )}
+          <>
+            {visibleAreas.length ? (
+              <FactoryMap
+                areas={visibleAreas}
+                sessions={data.sessions}
+                agents={data.agents}
+                selectedAreaId={selectedAreaId}
+                selectedSessionId={selectedSession?.id}
+                onSelectArea={selectArea}
+                onSelectSession={selectSession}
+              />
+            ) : (
+              <div className="map-empty">
+                <Search size={28} />
+                <strong>該当する業務ラインがありません</strong>
+                <span>検索語またはフィルターを変更してください。</span>
+              </div>
+            )}
 
-        <section className="operations-dock">
+            <section className="operations-dock">
           <div className="dock-tabs">
             <button
               type="button"
@@ -332,8 +391,9 @@ function App() {
 
           <div className="dock-content">
             {bottomTab === "activity" && (
-              <div className="run-grid">
-                {data.runs.map((run) => {
+              data.runs.length ? (
+                <div className="run-grid">
+                  {data.runs.map((run) => {
                   const session = data.sessions.find((item) => item.id === run.sessionId);
                   const status = session ? SESSION_META[session.status] : null;
                   return (
@@ -356,20 +416,35 @@ function App() {
                       </div>
                     </article>
                   );
-                })}
-              </div>
+                  })}
+                </div>
+              ) : (
+                <div className="dock-empty">
+                  <Activity size={20} />
+                  <strong>実行ログはまだ接続されていません</strong>
+                  <span>AX Factory Plugin / Hooksを有効にすると実セッションのログが表示されます。</span>
+                </div>
+              )
             )}
 
             {bottomTab === "approvals" && (
-              <div className="approval-list">
-                {data.approvals.map((approval) => (
-                  <ApprovalGate
-                    key={approval.id}
-                    approval={approval}
-                    onUpdate={(status) => handleApprovalUpdate(approval, status)}
-                  />
-                ))}
-              </div>
+              data.approvals.length ? (
+                <div className="approval-list">
+                  {data.approvals.map((approval) => (
+                    <ApprovalGate
+                      key={approval.id}
+                      approval={approval}
+                      onUpdate={(status) => handleApprovalUpdate(approval, status)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="dock-empty">
+                  <ShieldCheck size={20} />
+                  <strong>実承認データはありません</strong>
+                  <span>デモ承認はライブデータ接続時には表示しません。</span>
+                </div>
+              )
             )}
 
             {bottomTab === "errors" && (
@@ -399,14 +474,16 @@ function App() {
               </div>
             )}
           </div>
-        </section>
+            </section>
+          </>
+        )}
       </main>
 
       <SessionPanel
         area={selectedArea}
         session={selectedSession}
         agent={selectedAgent}
-        task={selectedTask}
+        task={selectedAreaTask}
         onStatusChange={handleStatusChange}
         onReset={resetLocalState}
       />

@@ -1,4 +1,12 @@
-import { appendFile, mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import {
+  appendFile,
+  mkdir,
+  readFile,
+  rename,
+  rm,
+  stat,
+  writeFile
+} from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
 import { homedir } from "node:os";
 
@@ -15,11 +23,15 @@ try {
 const eventName = String(input.hook_event_name || "Unknown");
 const sessionId = String(input.session_id || `session-${Date.now()}`);
 const cwd = String(input.cwd || "");
-const dataDir = resolve(
-  process.env.PLUGIN_DATA || join(homedir(), ".ax-factory", "plugin-data")
+const stableDataDir = resolve(
+  process.env.AX_FACTORY_STABLE_DATA ||
+    join(homedir(), ".ax-factory", "plugin-data")
 );
-const statePath = join(dataDir, "state.json");
-const eventsPath = join(dataDir, "events.jsonl");
+const pluginDataDir = resolve(process.env.PLUGIN_DATA || stableDataDir);
+const statePath = join(stableDataDir, "state.json");
+const pluginStatePath = join(pluginDataDir, "state.json");
+const eventsPath = join(stableDataDir, "events.jsonl");
+const maxEventLogBytes = 5 * 1024 * 1024;
 
 const eventState = {
   SessionStart: ["idle", "Codexセッションを接続", 0],
@@ -48,6 +60,21 @@ async function writeAtomic(path, value) {
   await rename(temporary, path);
 }
 
+async function appendEvent(value) {
+  await mkdir(stableDataDir, { recursive: true });
+  try {
+    const info = await stat(eventsPath);
+    if (info.size >= maxEventLogBytes) {
+      const rotatedPath = join(stableDataDir, "events.1.jsonl");
+      await rm(rotatedPath, { force: true });
+      await rename(eventsPath, rotatedPath);
+    }
+  } catch {
+    // The log does not exist yet.
+  }
+  await appendFile(eventsPath, `${JSON.stringify(value)}\n`, "utf8");
+}
+
 try {
   const state = await readState();
   const existing = state.sessions.find((session) => session.id === sessionId);
@@ -71,7 +98,9 @@ try {
   const sessions = [
     ...state.sessions.filter((item) => item.id !== sessionId),
     session
-  ].sort((a, b) => String(b.lastActivity).localeCompare(String(a.lastActivity)));
+  ]
+    .sort((a, b) => String(b.lastActivity).localeCompare(String(a.lastActivity)))
+    .slice(0, 100);
 
   const nextState = {
     updatedAt: now,
@@ -80,19 +109,17 @@ try {
   };
 
   await writeAtomic(statePath, nextState);
-  await mkdir(dataDir, { recursive: true });
-  await appendFile(
-    eventsPath,
-    `${JSON.stringify({
-      timestamp: now,
-      event: eventName,
-      sessionId,
-      turnId: input.turn_id || null,
-      toolName: input.tool_name || null,
-      cwd
-    })}\n`,
-    "utf8"
-  );
+  if (pluginStatePath !== statePath) {
+    await writeAtomic(pluginStatePath, nextState);
+  }
+  await appendEvent({
+    timestamp: now,
+    event: eventName,
+    sessionId,
+    turnId: input.turn_id || null,
+    toolName: input.tool_name || null,
+    cwd
+  });
 
   if (process.env.AX_FACTORY_STATE_MIRROR) {
     await writeAtomic(resolve(process.env.AX_FACTORY_STATE_MIRROR), nextState);

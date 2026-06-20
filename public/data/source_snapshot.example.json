@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-21T00:00:00.000Z",
+  "mode": "read-only",
+  "live": false,
+  "source": {
+    "name": "Auto House",
+    "root": "not connected",
+    "branch": null,
+    "commit": null,
+    "dirtyFileCount": 0,
+    "dirty": false
+  },
+  "businessAreas": [],
+  "tasks": [],
+  "metrics": {
+    "operations": { "months": [], "total": null, "caveat": "実データ未同期" },
+    "finance": {},
+    "timeLog": { "entries": 0, "minutes": 0, "lastDate": null },
+    "inventory": [],
+    "pricingReviews": []
+  },
+  "health": {
+    "status": "attention",
+    "sources": [],
+    "warnings": ["Auto Houseの読み取り専用同期を実行してください。"]
+  },
+  "safety": {
+    "sourceMode": "read-only",
+    "importedContent": "none",
+    "excluded": [
+      "guest names and contact details",
+      "reservation numbers and reservation-specific URLs",
+      "keys, check-in codes, passwords and API keys",
+      "raw DM, LINE, audio, images and screenshots",
+      "raw reservation rows and review text"
+    ]
+  }
+}

@@ -6,12 +6,14 @@ Codexの複数セッションと民泊業務の自動化状態を、工場ゲー
 
 ```powershell
 npm install
-npm run dev
+npm start
 ```
 
 ブラウザで `http://127.0.0.1:4173` を開きます。
 
 Node.js 22以上を使用してください。Windows版Codexに同梱されたNodeが利用可能な場合、`npm run build` は互換ランタイムを自動選択します。別のNodeを指定する場合は `AX_FACTORY_NODE` に実行ファイルを設定できます。
+
+`npm start`（`dev:live` と同じ）は民泊元データの読取専用同期、Codex Hook状態の同期、Vite起動をまとめて行います。PluginのインストールとHookの信頼設定を含む手順は [docs/OPERATIONS.md](docs/OPERATIONS.md) を参照してください。
 
 ## 現在の実装
 
@@ -23,6 +25,8 @@ Node.js 22以上を使用してください。Windows版Codexに同梱されたN
 - セッション状態の手動上書きと承認・却下をローカル保存
 - 完了・承認時の実績トースト
 - 実行ログ、承認待ち、エラーの下部ドック
+- 民泊元リポジトリのP1〜P11進捗、集計KPI、鮮度、在庫・価格見直し日を読取専用表示
+- ゲスト情報、予約ID、鍵・コード、URL、DM本文などを取込対象外にする許可リスト型インポーター
 
 ## データ
 
@@ -42,17 +46,17 @@ Node.js 22以上を使用してください。Windows版Codexに同梱されたN
 npm run check:data
 ```
 
-## 次の接続点
+## Codex Plugin接続
 
-現状の `state.json` はモックですが、`plugin/ax-factory` にCodex PluginとLifecycle Hooksを同梱しています。Hookはプロンプト本文を保存せず、セッションID、イベント、時刻、ツール名、作業ディレクトリだけを記録します。
+`plugin/ax-factory` にCodex PluginとLifecycle Hooksを同梱しています。repo-scoped marketplace は `.agents/plugins/marketplace.json` です。Codex再起動後にPluginsから `AX Factory Local` を選び、Pluginをインストールしてください。その後、新しいスレッドで `/hooks` を開いてHookを確認・信頼します。
 
-Plugin Hookが生成した `PLUGIN_DATA/state.json` を画面へ同期する例:
+Hookはプロンプト本文を保存せず、セッションID、イベント、時刻、ツール名、作業ディレクトリだけを記録します。安定保存先は `~/.ax-factory/plugin-data` です。
 
 ```powershell
-npm run bridge -- --source "C:\path\to\plugin-data\state.json"
+npm run bridge
 ```
 
-別ターミナルで `npm run dev` を起動します。
+詳細は [docs/OPERATIONS.md](docs/OPERATIONS.md) を参照してください。
 
 Hook単体テスト:
 

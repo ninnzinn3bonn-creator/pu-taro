@@ -46,3 +46,7 @@ if (nodeExecutable !== process.execPath) {
 
 run("node_modules/typescript/bin/tsc", ["-b"]);
 run("node_modules/vite/bin/vite.js", ["build"]);
+
+if (process.env.AX_FACTORY_INCLUDE_LOCAL_SNAPSHOT !== "1") {
+  run("scripts/sanitize-dist.mjs", []);
+}

@@ -4,15 +4,19 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "start": "node scripts/dev-live.mjs",
     "dev": "vite",
+    "dev:live": "node scripts/dev-live.mjs",
     "build": "node scripts/build.mjs",
     "preview": "vite preview",
     "lint": "eslint .",
     "check:data": "node scripts/validate-data.mjs",
+    "sync:auto-house": "node scripts/sync-auto-house.mjs",
+    "test:source": "node scripts/test-source-import.mjs",
     "bridge": "node scripts/state-bridge.mjs",
     "test:hooks": "node scripts/test-hook-recorder.mjs",
     "validate:plugin": "node scripts/validate-plugin.mjs",
-    "check": "npm run lint && npm run check:data && npm run test:hooks && npm run validate:plugin && npm run build"
+    "check": "npm run lint && npm run check:data && npm run test:source && npm run test:hooks && npm run validate:plugin && npm run build"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

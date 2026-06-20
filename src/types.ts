@@ -124,3 +124,103 @@ export interface FactoryData {
   runs: Run[];
   approvals: Approval[];
 }
+
+export interface SourceHealthItem {
+  id: string;
+  path: string;
+  purpose: string;
+  maxAgeDays: number;
+  exists: boolean;
+  modifiedAt: string | null;
+  ageDays: number | null;
+  status: "fresh" | "stale" | "missing";
+  bytes: number;
+}
+
+export interface SourceSnapshot {
+  schemaVersion: number;
+  generatedAt: string;
+  mode: "read-only";
+  live: boolean;
+  source: {
+    name: string;
+    root: string;
+    branch: string | null;
+    commit: string | null;
+    dirtyFileCount: number;
+    dirty: boolean;
+  };
+  businessAreas: BusinessArea[];
+  tasks: Task[];
+  metrics: {
+    operations: {
+      months: Array<{
+        month: string;
+        occupancyRate: number;
+        salesCount: number;
+        roomNights: number;
+        averageGuests: number;
+        averageStay: number;
+        reservations: number;
+        cancellations: number;
+      }>;
+      total: {
+        month: string;
+        occupancyRate: number;
+        salesCount: number;
+        roomNights: number;
+        averageGuests: number;
+        averageStay: number;
+        reservations: number;
+        cancellations: number;
+      } | null;
+      caveat: string;
+    };
+    finance: {
+      revenue?: number;
+      payments?: number;
+      bookingFees?: number;
+      managementFee?: number;
+      expenses?: number;
+      net?: number;
+    };
+    timeLog: {
+      entries: number;
+      minutes: number;
+      lastDate: string | null;
+    };
+    inventory: Array<{
+      item: string;
+      currentQuantity: number | null;
+      unit: string;
+      status: string;
+      checkedAt: string;
+    }>;
+    pricingReviews: Array<{
+      date: string;
+      label: string;
+      focus: string;
+      daysFromNow: number;
+    }>;
+  };
+  health: {
+    status: "healthy" | "attention";
+    sources: SourceHealthItem[];
+    warnings: string[];
+  };
+  safety: {
+    sourceMode: "read-only";
+    importedContent: string;
+    excluded: string[];
+  };
+}
+
+export interface AuditEntry {
+  id: string;
+  timestamp: string;
+  action: "session_status_changed" | "approval_changed";
+  targetId: string;
+  before: string;
+  after: string;
+  note: string;
+}
